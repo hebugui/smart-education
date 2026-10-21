@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>智慧教育一体化平台 · Demo</title>
+<style>
+:root{
+  --primary:#1d5db8; --primary-dark:#173f7c; --bg:#eef2f7; --card:#ffffff;
+  --text:#1f2937; --muted:#6b7280; --green:#16a34a; --red:#dc2626; --orange:#f59e0b; --purple:#7c3aed;
+  --radius:12px; --shadow:0 2px 10px rgba(15,40,90,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:var(--bg);color:var(--text);font-size:14px}
+.topbar{background:linear-gradient(90deg,var(--primary-dark),var(--primary));color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;position:sticky;top:0;z-index:50}
+.topbar .logo{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.topbar .logo .dot{width:26px;height:26px;border-radius:50%;background:#fff2;display:inline-flex;align-items:center;justify-content:center}
+.topbar .user{display:flex;align-items:center;gap:14px;font-size:13px}
+.avatar{width:30px;height:30px;border-radius:50%;background:#fff3;display:flex;align-items:center;justify-content:center;font-weight:700}
+.layout{display:flex;min-height:calc(100vh - 56px)}
+.sidebar{width:200px;background:#fff;box-shadow:var(--shadow);padding:14px 8px;flex-shrink:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;cursor:pointer;color:var(--muted);margin-bottom:4px;transition:.15s}
+.nav-item:hover{background:#f0f5fc;color:var(--primary)}
+.nav-item.active{background:linear-gradient(90deg,#e8f1fd,#f5f9ff);color:var(--primary);font-weight:600;border-left:3px solid var(--primary)}
+.main{flex:1;padding:24px 28px;overflow:auto}
+.page-title{font-size:20px;font-weight:700;border-left:4px solid var(--primary);padding-left:12px;margin-bottom:20px}
+.grid{display:grid;gap:18px}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.cols-2{grid-template-columns:repeat(2,1fr)}
+.cols-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1000px){.cols-3,.cols-4{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;position:relative;overflow:hidden}
+.card .topline{position:absolute;top:0;left:0;right:0;height:4px}
+.t-green{background:linear-gradient(90deg,#22c55e,#86efac)}
+.t-orange{background:linear-gradient(90deg,#f97316,#fcd34d)}
+.t-purple{background:linear-gradient(90deg,#8b5cf6,#c4b5fd)}
+.t-red{background:linear-gradient(90deg,#ef4444,#fca5a5)}
+.t-cyan{background:linear-gradient(90deg,#06b6d4,#67e8f9)}
+.t-blue{background:linear-gradient(90deg,#3b82f6,#93c5fd)}
+.card h3{font-size:16px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.card .desc{color:var(--muted);line-height:1.7;font-size:13px;min-height:44px}
+.card .foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn{border:none;background:var(--primary);color:#fff;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;transition:.15s}
+.btn:hover{background:var(--primary-dark)}
+.btn-ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.stat-num{font-size:22px;font-weight:700;color:var(--primary)}
+.badge{padding:2px 10px;border-radius:10px;font-size:12px}
+.b-green{background:#dcfce7;color:#15803d}.b-orange{background:#fef3c7;color:#b45309}.b-red{background:#fee2e2;color:#b91c1c}.b-blue{background:#dbeafe;color:#1d4ed8}.b-gray{background:#f3f4f6;color:#4b5563}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f4f7fb;text-align:left;padding:10px 12px;color:#475569;font-weight:600}
+td{padding:10px 12px;border-bottom:1px solid #f0f2f5}
+tr:hover td{background:#f8fafd}
+.search-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.input,.select{padding:8px 12px;border:1px solid #d7dee8;border-radius:6px;font-size:13px;outline:none;background:#fff}
+.input:focus{border-color:var(--primary)}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:7px 18px;border-radius:20px;background:#fff;border:1px solid #e2e8f0;cursor:pointer;font-size:13px}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.page{display:none}
+.page.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.chart-box{width:100%;height:260px}
+.progress{height:8px;background:#eef2f7;border-radius:4px;overflow:hidden}
+.progress>i{display:block;height:100%;background:var(--primary);border-radius:4px}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eef0f4;font-size:13px}
+.kv:last-child{border:none}
+.modal-mask{display:none;position:fixed;inset:0;background:rgba(15,30,60,.45);z-index:100;align-items:center;justify-content:center}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:12px;width:520px;max-width:92vw;max-height:85vh;overflow:auto;padding:24px}
+.modal h3{margin-bottom:14px}
+.q-item{padding:12px;border:1px solid #eef1f6;border-radius:8px;margin-bottom:12px}
+.q-item p{font-weight:600;margin-bottom:8px}
+.q-item label{display:block;padding:5px 0;cursor:pointer}
+.tag{display:inline-block;padding:3px 10px;border-radius:4px;background:#eef4fd;color:var(--primary);font-size:12px;margin:0 6px 6px 0;cursor:pointer}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 22px;border-radius:8px;opacity:0;transition:.3s;z-index:200;pointer-events:none}
+.toast.show{opacity:.92}
+.radar-legend{font-size:12px;color:var(--muted)}
+.timeline{border-left:2px solid #e2e8f0;margin-left:8px;padding-left:18px}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-item::before{content:"";position:absolute;left:-24px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--primary)}
+.tl-item .t{font-size:12px;color:var(--muted)}
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1000px){.res-grid{grid-template-columns:repeat(2,1fr)}}
+.res-card{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:14px;cursor:pointer;transition:.15s}
+.res-card:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(15,40,90,.14)}
+.res-thumb{height:90px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px}
+.screen-page{background:#0b1a33;min-height:calc(100vh - 56px)}
+.screen-page .page-title{color:#e8f1fd;border-color:#3b82f6}
+.screen-card{background:#12244a;border:1px solid #1e3a6e;border-radius:10px;padding:16px;color:#cfe2ff}
+.screen-card h4{color:#7fb4ff;font-size:14px;margin-bottom:10px}
+.big-num{font-size:28px;font-weight:700;color:#ffd166}
+.menu-btn{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px}
+.sidebar-mask{display:none;position:fixed;inset:0;background:rgba(15,30,60,.45);z-index:60}
+.sidebar-close{display:none;position:absolute;top:10px;right:12px;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* ============ 手机端适配 ============ */
+@media(max-width:768px){
+  body{font-size:13px}
+  .topbar{height:50px;padding:0 14px}
+  .topbar .logo{font-size:16px;gap:8px}
+  .topbar .logo .dot{width:22px;height:22px;font-size:13px}
+  .topbar .user{gap:10px}
+  .topbar .user>span:not(.avatar):first-child{display:none}
+  .topbar .user .welcome{display:none}
+  .menu-btn{display:block}
+  .layout{min-height:calc(100vh - 50px)}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:230px;z-index:70;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 16px rgba(0,0,0,.15);overflow-y:auto;border-radius:0}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-mask.show{display:block}
+  .sidebar-close{display:block}
+  .main{padding:16px 12px}
+  .page-title{font-size:17px;margin-bottom:14px;padding-left:10px}
+  .grid{gap:12px}
+  .cols-2,.cols-3,.cols-4{grid-template-columns:1fr}
+  .card{padding:14px}
+  .card h3{font-size:15px}
+  .stat-num{font-size:19px}
+  .btn{padding:8px 14px;font-size:13px}
+  .chart-box{height:200px}
+  .res-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .res-card{padding:10px}
+  .res-thumb{height:70px;font-size:26px}
+  .search-row .input{flex:1;min-width:140px}
+  .search-row{flex-wrap:wrap}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .tab{white-space:nowrap;flex-shrink:0;padding:7px 14px;font-size:12px}
+  .timeline{margin-left:4px;padding-left:14px}
+  .tl-item{margin-bottom:13px}
+  .modal{padding:18px}
+  .screen-page{min-height:calc(100vh - 50px)}
+  .big-num{font-size:22px}
+  .screen-card{padding:12px}
+}
+@media(max-width:380px){
+  .topbar .logo{font-size:14px}
+  .res-grid{grid-template-columns:1fr 1fr}
+}
+.gauge-wrap{display:flex;justify-content:space-around;align-items:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><button class="menu-btn" id="menuBtn" onclick="toggleMenu()">☰</button><span class="dot">🌐</span>智慧教育一体化平台</div>
+  <div class="user">
+    <span>🔔</span><span class="welcome">欢迎您，管理员</span><span class="avatar">管</span>
+  </div>
+</div>
+
+<div class="layout">
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-close" onclick="toggleMenu()">✕</button>
+  <div class="nav-item active" data-page="dashboard">🏠 工作台</div>
+  <div class="nav-item" data-page="teaching">📚 智慧教学</div>
+  <div class="nav-item" data-page="campus">🏫 校园管理</div>
+  <div class="nav-item" data-page="analysis">📊 学情分析</div>
+  <div class="nav-item" data-page="exam">📝 在线考试</div>
+  <div class="nav-item" data-page="resource">☁️ 资源共享</div>
+  <div class="nav-item" data-page="screen">🖥️ 数据大屏</div>
+</div>
+<div class="sidebar-mask" id="sidebarMask" onclick="toggleMenu()"></div>
+
+<div class="main">
+
+<!-- ============ 工作台 ============ -->
+<div class="page active" id="page-dashboard">
+  <div class="page-title">工作台 / 核心模块概览</div>
+  <div class="grid cols-3">
+    <div class="card"><i class="topline t-green"></i>
+      <h3>📚 智慧教学</h3><p class="desc">提供在线备课、互动课堂、课后作业布置与批改。支持多终端同步，提升互动性。</p>
+      <div class="foot"><span>活跃课程: <b class="stat-num">1,248</b></span><button class="btn" onclick="go('teaching')">进入模块</button></div>
+    </div>
+    <div class="card"><i class="topline t-orange"></i>
+      <h3>🏫 校园管理</h3><p class="desc">涵盖学籍档案、教务审批、教师排课及公告发布。实现跨校统一调度。</p>
+      <div class="foot"><span>待办审批: <b class="stat-num">36</b></span><button class="btn" onclick="go('campus')">进入模块</button></div>
+    </div>
+    <div class="card"><i class="topline t-purple"></i>
+      <h3>📊 学情分析</h3><p class="desc">基于日常作业、考试数据，生成多维度学生画像与学情诊断报告。</p>
+      <div class="foot"><span>本周报告: <b class="stat-num">850</b></span><button class="btn" onclick="go('analysis')">进入模块</button></div>
+    </div>
+    <div class="card"><i class="topline t-red"></i>
+      <h3>📝 在线考试</h3><p class="desc">支持题库管理、智能组卷、防作弊监考、在线阅卷与成绩统计。</p>
+      <div class="foot"><span>进行中: <b class="stat-num">5</b></span><button class="btn" onclick="go('exam')">进入模块</button></div>
+    </div>
+    <div class="card"><i class="topline t-cyan"></i>
+      <h3>☁️ 资源库共享</h3><p class="desc">汇聚全市优质课件、微课视频、试题试卷等资源，促进教育均衡。</p>
+      <div class="foot"><span>资源总量: <b class="stat-num">125,000+</b></span><button class="btn" onclick="go('resource')">进入模块</button></div>
+    </div>
+    <div class="card"><i class="topline t-blue"></i>
+      <h3>📈 数据可视化</h3><p class="desc">面向管理者提供区域教育决策大屏，实时展示升学率、师资等关键指标。</p>
+      <div class="foot"><span>更新: <b class="stat-num">刚刚</b></span><button class="btn" onclick="go('screen')">进入大屏</button></div>
+    </div>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="card"><h3>🕐 今日日程</h3>
+      <div class="timeline">
+        <div class="tl-item"><div>高二(3)班 · 数学 ·《三角函数图像》互动课堂</div><div class="t">08:00 - 08:45 · 智慧教室 A302</div></div>
+        <div class="tl-item"><div>教务审批：期中考试安排（3 件待办）</div><div class="t">10:00 · 校园管理模块</div></div>
+        <div class="tl-item"><div>全市数学微课资源评审会</div><div class="t">14:30 · 线上会议</div></div>
+        <div class="tl-item"><div>高一年级月考（在线考试 · 监考中）</div><div class="t">16:00 - 17:30</div></div>
+      </div>
+    </div>
+    <div class="card"><h3>⚡ 平台实时动态</h3>
+      <div class="kv"><span>在线教师</span><b class="stat-num" id="k1">1,032</b></div>
+      <div class="kv"><span>在线学生</span><b class="stat-num" id="k2">18,547</b></div>
+      <div class="kv"><span>今日提交作业</span><b class="stat-num">42,318</b></div>
+      <div class="kv"><span>进行中考试</span><b class="stat-num">5</b></div>
+      <div class="kv"><span>资源今日下载</span><b class="stat-num">9,204</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 智慧教学 ============ -->
+<div class="page" id="page-teaching">
+  <div class="page-title">智慧教学 / 课程与作业管理</div>
+  <div class="tabs">
+    <div class="tab active" onclick="tab(this,'teach-list')">我的课程</div>
+    <div class="tab" onclick="tab(this,'teach-hw')">作业批改</div>
+    <div class="tab" onclick="tab(this,'teach-live')">互动课堂</div>
+  </div>
+  <div id="teach-list" class="tabpane">
+    <div class="search-row"><input class="input" placeholder="搜索课程名称..." style="width:240px"><select class="select"><option>全部学科</option><option>数学</option><option>语文</option><option>英语</option><option>物理</option></select><button class="btn">新建课程</button></div>
+    <div class="card" style="padding:0">
+      <div class="table-wrap"><table><thead><tr><th>课程名称</th><th>班级</th><th>学生数</th><th>本章进度</th><th>状态</th><th>操作</th></tr></thead><tbody>
+        <tr><td>数学 · 必修一 三角函数</td><td>高一(2)班</td><td>46</td><td><div class="progress" style="width:140px"><i style="width:72%"></i></div></td><td><span class="badge b-green">进行中</span></td><td><button class="btn btn-ghost" onclick="toast('已进入备课界面')">备课</button> <button class="btn" onclick="toast('互动课堂已开启（演示）')">开课</button></td></tr>
+        <tr><td>数学 · 必修二 数列</td><td>高二(3)班</td><td>44</td><td><div class="progress" style="width:140px"><i style="width:45%"></i></div></td><td><span class="badge b-green">进行中</span></td><td><button class="btn btn-ghost" onclick="toast('已进入备课界面')">备课</button> <button class="btn" onclick="toast('互动课堂已开启（演示）')">开课</button></td></tr>
+        <tr><td>物理 · 力学基础</td><td>高一(5)班</td><td>48</td><td><div class="progress" style="width:140px"><i style="width:88%"></i></div></td><td><span class="badge b-orange">即将结课</span></td><td><button class="btn btn-ghost" onclick="toast('已进入备课界面')">备课</button> <button class="btn" onclick="toast('互动课堂已开启（演示）')">开课</button></td></tr>
+        <tr><td>英语 · 阅读理解专项</td><td>高二(1)班</td><td>42</td><td><div class="progress" style="width:140px"><i style="width:30%"></i></div></td><td><span class="badge b-blue">已排课</span></td><td><button class="btn btn-ghost" onclick="toast('已进入备课界面')">备课</button> <button class="btn" onclick="toast('互动课堂已开启（演示）')">开课</button></td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+  <div id="teach-hw" class="tabpane" style="display:none">
+    <div class="grid cols-3">
+      <div class="card"><h3>三角函数练习卷</h3><p class="desc">高一(2)班 · 已交 44/46 · 待批改 12 份</p><div class="foot"><span class="badge b-orange">批改中</span><button class="btn" onclick="toast('进入批改界面（演示）')">去批改</button></div></div>
+      <div class="card"><h3>数列证明题组</h3><p class="desc">高二(3)班 · 已交 44/44 · AI 已预批 38 份</p><div class="foot"><span class="badge b-green">已完成</span><button class="btn" onclick="toast('查看批改详情（演示）')">查看</button></div></div>
+      <div class="card"><h3>英语阅读周记</h3><p class="desc">高二(1)班 · 已交 39/42 · 待批改 39 份</p><div class="foot"><span class="badge b-red">紧急</span><button class="btn" onclick="toast('进入批改界面（演示）')">去批改</button></div></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>🤖 AI 智能批改建议</h3>
+      <div class="kv"><span>选择题 / 填空题</span><span>已自动批改，正确率 <b style="color:var(--green)">81.5%</b></span></div>
+      <div class="kv"><span>解答题步骤识别</span><span>AI 给出得分点标记，待教师复核 <b style="color:var(--orange)">24</b> 处</span></div>
+      <div class="kv"><span>共性错题</span><span>第 7 题（辅助线构造）错误率 46%，建议下节课重点讲评</span></div>
+    </div>
+  </div>
+  <div id="teach-live" class="tabpane" style="display:none">
+    <div class="grid cols-2">
+      <div class="card"><h3>📺 互动课堂（演示）</h3>
+        <div style="background:#0b1a33;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center;color:#7fb4ff;font-size:15px">课件投屏区域 ·《三角函数的图像与性质》第 12 页</div>
+        <div class="search-row" style="margin-top:14px">
+          <button class="btn" onclick="toast('已发起随机点名：李明')">🎲 随机点名</button>
+          <button class="btn" onclick="toast('抢答已开启，3 名学生抢答成功')">⚡ 抢答</button>
+          <button class="btn" onclick="toast('已推送随堂测验（5 题）')">📤 推送测验</button>
+          <button class="btn" onclick="toast('已开启弹幕互动')">💬 弹幕互动</button>
+        </div>
+        <div class="kv"><span>课堂应答率</span><span><b style="color:var(--green)">92%</b></span></div>
+      </div>
+      <div class="card"><h3>💬 实时弹幕 / 提问</h3>
+        <div class="kv"><span>王小华</span><span>老师，周期公式我懂了！</span></div>
+        <div class="kv"><span>陈晓</span><span>能否再讲一遍例 3？</span></div>
+        <div class="kv"><span>刘畅</span><span>图像平移方向是左加右减吗？</span></div>
+        <div class="kv"><span>系统</span><span>随堂测验 5 题已全员提交 ✔</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 校园管理 ============ -->
+<div class="page" id="page-campus">
+  <div class="page-title">校园管理 / 学籍 · 审批 · 排课 · 公告</div>
+  <div class="grid cols-4" style="margin-bottom:18px">
+    <div class="card"><h3>在校学生</h3><div class="stat-num">3,842</div><span class="badge b-green">本学期 +56</span></div>
+    <div class="card"><h3>在职教师</h3><div class="stat-num">286</div><span class="badge b-green">满编率 96%</span></div>
+    <div class="card"><h3>待审批事项</h3><div class="stat-num" style="color:var(--red)">36</div><span class="badge b-red">需今日处理 8 项</span></div>
+    <div class="card"><h3>教室使用率</h3><div class="stat-num">87.4%</div><span class="badge b-blue">智慧教室 24 间</span></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="tab(this,'camp-approval')">教务审批</div>
+    <div class="tab" onclick="tab(this,'camp-sched')">智能排课</div>
+    <div class="tab" onclick="tab(this,'camp-notice')">公告发布</div>
+  </div>
+  <div id="camp-approval" class="tabpane">
+    <div class="card" style="padding:0"><div class="table-wrap"><table><thead><tr><th>申请人</th><th>事项</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead><tbody>
+      <tr><td>张伟（数学组）</td><td>期中考试时间调整申请</td><td>今天 09:12</td><td><span class="badge b-orange">待审批</span></td><td><button class="btn" onclick="toast('已通过')">通过</button> <button class="btn btn-ghost" onclick="toast('已驳回')">驳回</button></td></tr>
+      <tr><td>李娜（英语组）</td><td>外出教研培训请假（3 天）</td><td>今天 08:40</td><td><span class="badge b-orange">待审批</span></td><td><button class="btn" onclick="toast('已通过')">通过</button> <button class="btn btn-ghost" onclick="toast('已驳回')">驳回</button></td></tr>
+      <tr><td>教务处</td><td>高三模拟考考场安排</td><td>昨天 17:05</td><td><span class="badge b-green">已通过</span></td><td><button class="btn btn-ghost" onclick="toast('查看详情')">详情</button></td></tr>
+      <tr><td>王强（体育组）</td><td>运动会场地使用申请</td><td>昨天 15:22</td><td><span class="badge b-blue">审批中</span></td><td><button class="btn btn-ghost" onclick="toast('查看详情')">详情</button></td></tr>
+    </tbody></table></div></div>
+  </div>
+  <div id="camp-sched" class="tabpane" style="display:none">
+    <div class="card"><h3>🗓️ 本周课表（高一 2 班 · 智能排课结果）</h3>
+      <div class="table-wrap"><table><thead><tr><th>节次</th><th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th></tr></thead><tbody>
+        <tr><td>第 1 节</td><td>数学</td><td>语文</td><td>英语</td><td>数学</td><td>物理</td></tr>
+        <tr><td>第 2 节</td><td>语文</td><td>数学</td><td>物理</td><td>英语</td><td>数学</td></tr>
+        <tr><td>第 3 节</td><td>英语</td><td>化学</td><td>数学</td><td>语文</td><td>英语</td></tr>
+        <tr><td>第 4 节</td><td>体育</td><td>物理</td><td>化学</td><td>历史</td><td>美术</td></tr>
+        <tr><td>第 5 节</td><td>物理</td><td>历史</td><td>体育</td><td>化学</td><td>班会</td></tr>
+      </tbody></table></div>
+      <p style="margin-top:10px;color:var(--muted)">✅ 排课引擎已自动避开教师时间冲突，体育课全部排在下午，主科均匀分布。</p>
+    </div>
+  </div>
+  <div id="camp-notice" class="tabpane" style="display:none">
+    <div class="grid cols-2">
+      <div class="card"><h3>📢 发布新公告</h3>
+        <input class="input" style="width:100%;margin-bottom:10px" placeholder="公告标题"><textarea class="input" rows="4" style="width:100%" placeholder="公告内容..."></textarea>
+        <div style="margin:10px 0"><span class="tag">全校师生</span><span class="tag">仅教师</span><span class="tag">仅学生</span><span class="tag">家长</span></div>
+        <button class="btn" onclick="toast('公告已发布并推送通知')">发布公告</button>
+      </div>
+      <div class="card"><h3>🗂️ 历史公告</h3>
+        <div class="kv"><span>关于期中考试安排的通知</span><span class="badge b-green">已读率 98%</span></div>
+        <div class="kv"><span>秋季运动会报名开始</span><span class="badge b-green">已读率 95%</span></div>
+        <div class="kv"><span>智慧教室使用培训（本周五）</span><span class="badge b-orange">已读率 71%</span></div>
+        <div class="kv"><span>图书馆新到一批 AI 教育书籍</span><span class="badge b-gray">已读率 64%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 学情分析 ============ -->
+<div class="page" id="page-analysis">
+  <div class="page-title">学情分析 / 学生画像与诊断报告</div>
+  <div class="grid cols-2">
+    <div class="card"><h3>📈 高一(2)班 数学 · 近 5 次测验平均分趋势</h3>
+      <div class="chart-box"><svg id="svg-trend" width="100%" height="100%" viewBox="0 0 460 240" preserveAspectRatio="none"></svg></div>
+    </div>
+    <div class="card"><h3>🕸️ 学生能力五维雷达 · 张晓萌</h3>
+      <div class="chart-box"><svg id="svg-radar" width="100%" height="100%" viewBox="0 0 460 240"></svg></div>
+      <div class="radar-legend">维度：基础知识 / 计算能力 / 逻辑推理 / 空间想象 / 应用创新</div>
+    </div>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="card"><h3>🥧 班级知识点掌握分布</h3>
+      <div class="chart-box"><svg id="svg-pie" width="100%" height="100%" viewBox="0 0 460 240"></svg></div>
+    </div>
+    <div class="card"><h3>🩺 AI 学情诊断报告（摘要）</h3>
+      <div class="kv"><span>班级整体水平</span><span><b style="color:var(--green)">良好</b>（年级前 30%）</span></div>
+      <div class="kv"><span>薄弱知识点</span><span>函数单调性应用 · 错误率 42%</span></div>
+      <div class="kv"><span>进步最快学生</span><span>李明（+12.5 分）</span></div>
+      <div class="kv"><span>预警学生</span><span style="color:var(--red)">3 人（连续两次下滑 &gt; 10 分）</span></div>
+      <button class="btn" style="margin-top:12px" onclick="toast('已生成完整 PDF 诊断报告（演示）')">生成完整报告</button>
+      <button class="btn btn-ghost" style="margin-top:12px" onclick="toast('已推送个性化练习（演示）')">推送个性化练习</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 在线考试 ============ -->
+<div class="page" id="page-exam">
+  <div class="page-title">在线考试 / 组卷 · 监考 · 阅卷 · 成绩</div>
+  <div class="grid cols-3" style="margin-bottom:18px">
+    <div class="card"><h3>📋 进行中考试</h3><p class="desc">高一年级月考 · 数学 · 1,352 人在线 · 防作弊监控开启</p><div class="foot"><span class="badge b-green">监控正常</span><button class="btn" onclick="toast('打开监考大屏（演示）')">进入监考</button></div></div>
+    <div class="card"><h3>🧩 智能组卷</h3><p class="desc">选择知识点与难度比例，AI 从 85 万题库中自动组卷。</p><div class="foot"><span class="badge b-blue">题库 850,000</span><button class="btn" onclick="toast('AI 已组卷完成：25 题，预估难度 0.68（演示）')">一键组卷</button></div></div>
+    <div class="card"><h3>📊 阅卷与统计</h3><p class="desc">客观题自动阅卷，主观题在线双评，成绩即时统计分析。</p><div class="foot"><span class="badge b-orange">待阅卷 3 场</span><button class="btn" onclick="toast('进入阅卷工作台（演示）')">进入阅卷</button></div></div>
+  </div>
+  <div class="card"><h3>📝 试卷预览（演示答题）</h3>
+    <div class="q-item"><p>1.（单选 · 3 分）函数 y = sin(x) 的最小正周期是？</p>
+      <label><input type="radio" name="q1"> π/2</label>
+      <label><input type="radio" name="q1"> π ✔</label>
+      <label><input type="radio" name="q1"> 2π</label>
+      <label><input type="radio" name="q1"> 4π</label>
+    </div>
+    <div class="q-item"><p>2.（单选 · 3 分）将图像 y = sin(x) 向左平移 π/6 得到？</p>
+      <label><input type="radio" name="q2"> y = sin(x - π/6)</label>
+      <label><input type="radio" name="q2"> y = sin(x + π/6) ✔</label>
+      <label><input type="radio" name="q2"> y = cos(x + π/6)</label>
+      <label><input type="radio" name="q2"> y = 2sin(x)</label>
+    </div>
+    <button class="btn" onclick="toast('交卷成功！客观题得分：6/6（演示）')">提交答卷</button>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>🛡️ 防作弊监考动态</h3>
+    <div class="kv"><span>人脸识别核验</span><span>1,352/1,352 全部通过</span></div>
+    <div class="kv"><span>切屏异常检测</span><span>检测到 <b style="color:var(--orange)">2</b> 人切屏（已自动记录）</span></div>
+    <div class="kv"><span>多设备 / 代考 AI 检测</span><span>未发现异常</span></div>
+  </div>
+</div>
+
+<!-- ============ 资源共享 ============ -->
+<div class="page" id="page-resource">
+  <div class="page-title">资源共享 / 全市教育资源库</div>
+  <div class="search-row">
+    <input class="input" style="width:300px" placeholder="搜索 125,000+ 资源：课件 / 微课 / 试题...">
+    <select class="select"><option>全部分类</option><option>课件</option><option>微课视频</option><option>试题试卷</option><option>教学设计</option></select>
+    <select class="select"><option>全部学科</option><option>数学</option><option>语文</option><option>英语</option><option>物理</option></select>
+    <button class="btn">搜索</button>
+    <button class="btn btn-ghost" onclick="toast('打开上传对话框（演示）')">⬆ 上传资源</button>
+  </div>
+  <div class="res-grid">
+    <div class="res-card" onclick="toast('预览资源（演示）')"><div class="res-thumb" style="background:#e0f2fe">📐</div><b>三角函数图像变换 课件</b><p style="color:var(--muted);font-size:12px;margin:6px 0">数学 · 高一 · PPT · 12.4MB</p><span class="badge b-blue">下载 3,204</span> <span class="badge b-green">⭐ 4.9</span></div>
+    <div class="res-card" onclick="toast('预览资源（演示）')"><div class="res-thumb" style="background:#fef9c3">🎬</div><b>微课：数列求和技巧</b><p style="color:var(--muted);font-size:12px;margin:6px 0">数学 · 高二 · 视频 · 8 分钟</p><span class="badge b-blue">下载 5,812</span> <span class="badge b-green">⭐ 4.8</span></div>
+    <div class="res-card" onclick="toast('预览资源（演示）')"><div class="res-thumb" style="background:#fce7f3">📄</div><b>力学综合测试卷（含解析）</b><p style="color:var(--muted);font-size:12px;margin:6px 0">物理 · 高一 · 试卷 · PDF</p><span class="badge b-blue">下载 2,156</span> <span class="badge b-green">⭐ 4.7</span></div>
+    <div class="res-card" onclick="toast('预览资源（演示）')"><div class="res-thumb" style="background:#dcfce7">📖</div><b>英语阅读理解 100 篇精选</b><p style="color:var(--muted);font-size:12px;margin:6px 0">英语 · 高中 · 题库 · DOCX</p><span class="badge b-blue">下载 7,431</span> <span class="badge b-green">⭐ 4.9</span></div>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="card"><h3>🔥 热门资源排行（本周）</h3>
+      <div class="kv"><span>1. 英语阅读理解 100 篇精选</span><span>7,431 次下载</span></div>
+      <div class="kv"><span>2. 微课：数列求和技巧</span><span>5,812 次下载</span></div>
+      <div class="kv"><span>3. 高考数学一轮复习全家桶</span><span>5,120 次下载</span></div>
+      <div class="kv"><span>4. 物理实验操作视频合集</span><span>4,965 次下载</span></div>
+    </div>
+    <div class="card"><h3>⚖️ 教育均衡贡献</h3>
+      <div class="kv"><span>城区 → 乡镇学校资源流转</span><span><b style="color:var(--green)">12,480 次</b></span></div>
+      <div class="kv"><span>名师工作室共享资源</span><span>3,256 件</span></div>
+      <div class="kv"><span>跨校联合备课次数</span><span>842 次</span></div>
+      <div class="kv"><span>乡村学校覆盖率</span><span>98.6%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 数据大屏 ============ -->
+<div class="page screen-page" id="page-screen">
+  <div class="page-title">区域教育决策大屏 · 实时数据</div>
+  <div class="grid cols-4">
+    <div class="screen-card"><h4>学校总数</h4><div class="big-num">326</div><span style="color:#5b7fb8">覆盖 12 个区县</span></div>
+    <div class="screen-card"><h4>师生总量</h4><div class="big-num">58.7万</div><span style="color:#5b7fb8">教师 4.2 万 · 学生 54.5 万</span></div>
+    <div class="screen-card"><h4>平台活跃率</h4><div class="big-num">92.3%</div><span style="color:#5b7fb8">日环比 +1.8%</span></div>
+    <div class="screen-card"><h4>资源调用量</h4><div class="big-num">1.2亿</div><span style="color:#5b7fb8">今日 +9.2 万</span></div>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="screen-card"><h4>各区县教学质量指数</h4>
+      <div class="chart-box"><svg id="svg-bar" width="100%" height="100%" viewBox="0 0 460 240"></svg></div>
+    </div>
+    <div class="screen-card"><h4>师资结构（环形图）</h4>
+      <div class="chart-box"><svg id="svg-donut" width="100%" height="100%" viewBox="0 0 460 240"></svg></div>
+    </div>
+  </div>
+  <div class="grid cols-2" style="margin-top:18px">
+    <div class="screen-card"><h4>⚠️ 实时预警</h4>
+      <div style="color:#cfe2ff;font-size:13px">
+        <div class="kv" style="border-color:#1e3a6e"><span>某区中学 · 教师缺编预警（数学 -6 人）</span><span style="color:#fbbf24">中风险</span></div>
+        <div class="kv" style="border-color:#1e3a6e"><span>某乡镇小学 · 平台活跃率连续下滑</span><span style="color:#f87171">关注</span></div>
+        <div class="kv" style="border-color:#1e3a6e"><span>考试系统 · 负载正常，CPU 34%</span><span style="color:#4ade80">正常</span></div>
+      </div>
+    </div>
+    <div class="screen-card"><h4>📢 决策建议（AI 生成）</h4>
+      <div style="color:#cfe2ff;font-size:13px;line-height:2">
+        1. 建议对数学师资缺口区县启动跨校走教机制；<br>
+        2. 乡镇学校活跃率下滑，建议推送本地化培训资源包；<br>
+        3. 本月优质微课产出环比 +18%，建议纳入年度评优参考。
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- main -->
+</div><!-- layout -->
+
+<div class="modal-mask" id="modal-mask"><div class="modal" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- 导航 ---------- */
+function toggleMenu(){
+  const sb=document.getElementById('sidebar'),mask=document.getElementById('sidebarMask');
+  sb.classList.toggle('open');mask.classList.toggle('show');
+}
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===p));
+  if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarMask').classList.remove('show');}
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>go(n.dataset.page));
+function tab(el,id){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const pane=el.closest('.page');
+  pane.querySelectorAll('.tabpane').forEach(p=>p.style.display='none');
+  pane.querySelector('#'+id).style.display='block';
+}
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+/* 实时数字微跳动 */
+setInterval(()=>{
+  const k1=document.getElementById('k1'),k2=document.getElementById('k2');
+  if(k1&&k1.offsetParent){k1.textContent=(1000+Math.floor(Math.random()*80)).toLocaleString();k2.textContent=(18400+Math.floor(Math.random()*300)).toLocaleString();}
+},3000);
+
+/* ---------- 折线图 ---------- */
+(function(){
+  const svg=document.getElementById('svg-trend');if(!svg)return;
+  const data=[72.4,75.8,74.2,79.6,83.1],labels=['测验1','测验2','测验3','测验4','测验5'];
+  const W=460,H=240,pl=42,pb=30,tw=W-pl-20,th=H-pb-20;
+  const y=v=>H-pb-(v-60)/30*th, x=i=>pl+i/(data.length-1)*tw;
+  let g='';
+  for(let v=60;v<=90;v+=10){g+=`<line x1="${pl}" y1="${y(v)}" x2="${W-16}" y2="${y(v)}" stroke="#eef2f7"/><text x="${pl-8}" y="${y(v)+4}" font-size="10" fill="#94a3b8" text-anchor="end">${v}</text>`;}
+  const pts=data.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+  const area=`${pl},${H-pb} ${pts} ${x(data.length-1)},${H-pb}`;
+  data.forEach((v,i)=>{g+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#1d5db8"/><text x="${x(i)}" y="${y(v)-10}" font-size="11" fill="#1d5db8" text-anchor="middle" font-weight="700">${v}</text><text x="${x(i)}" y="${H-10}" font-size="10" fill="#64748b" text-anchor="middle">${labels[i]}</text>`;});
+  svg.innerHTML=g+`<polygon points="${area}" fill="#3b82f6" opacity="0.12"/><polyline points="${pts}" fill="none" stroke="#1d5db8" stroke-width="2.5"/>`;
+})();
+/* ---------- 雷达图 ---------- */
+(function(){
+  const svg=document.getElementById('svg-radar');if(!svg)return;
+  const cx=230,cy=125,R=85,N=5,vals=[0.9,0.85,0.7,0.6,0.75],names=['基础','计算','推理','空间','创新'];
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/N;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  let g='';
+  [1,0.75,0.5,0.25].forEach(r=>{const p=[...Array(N)].map((_,i)=>pt(i,R*r).join(',')).join(' ');g+=`<polygon points="${p}" fill="none" stroke="#e2e8f0"/>`;});
+  names.forEach((n,i)=>{const [x,y]=pt(i,R);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#e2e8f0"/><text x="${pt(i,R+18)[0]}" y="${pt(i,R+18)[1]+4}" font-size="11" fill="#64748b" text-anchor="middle">${n}</text>`;});
+  const poly=[...Array(N)].map((_,i)=>pt(i,R*vals[i]).join(',')).join(' ');
+  g+=`<polygon points="${poly}" fill="#8b5cf6" opacity="0.3" stroke="#7c3aed" stroke-width="2"/>`;
+  [...Array(N)].forEach((_,i)=>{const[x,y]=pt(i,R*vals[i]);g+=`<circle cx="${x}" cy="${y}" r="3" fill="#7c3aed"/>`;});
+  svg.innerHTML=g;
+})();
+/* ---------- 饼图 ---------- */
+(function(){
+  const svg=document.getElementById('svg-pie');if(!svg)return;
+  const items=[['熟练掌握',45,'#16a34a'],['基本掌握',30,'#3b82f6'],['部分掌握',17,'#f59e0b'],['薄弱',8,'#dc2626']];
+  const cx=140,cy=120,r=80;let a0=-Math.PI/2,g='';
+  items.forEach(([n,p,c])=>{const a1=a0+p/100*2*Math.PI;
+    const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    g+=`<path d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${a1-a0>Math.PI?1:0},1 ${x1},${y1} Z" fill="${c}" opacity="0.9"/>`;
+    a0=a1;});
+  let ly=60;items.forEach(([n,p,c])=>{g+=`<rect x="270" y="${ly-10}" width="12" height="12" rx="2" fill="${c}"/><text x="290" y="${ly+1}" font-size="12" fill="#334155">${n}　${p}%</text>`;ly+=30;});
+  g+=`<text x="${cx}" y="${cy+5}" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="700">知识点</text>`;
+  svg.innerHTML=g;
+})();
+/* ---------- 大屏柱状图 ---------- */
+(function(){
+  const svg=document.getElementById('svg-bar');if(!svg)return;
+  const data=[['A区',92],['B区',88],['C区',85],['D区',81],['E区',78],['F区',74],['G区',70]];
+  const W=460,H=240,pb=28,tw=W-40,bw=34,gap=tw/data.length;
+  let g='';
+  data.forEach(([n,v],i)=>{
+    const h=(v/100)*(H-pb-30),x=20+i*gap+(gap-bw)/2,y=H-pb-h;
+    g+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="url(#barGrad)"/><text x="${x+bw/2}" y="${y-6}" font-size="11" fill="#ffd166" text-anchor="middle" font-weight="700">${v}</text><text x="${x+bw/2}" y="${H-8}" font-size="11" fill="#5b7fb8" text-anchor="middle">${n}</text>`;
+  });
+  svg.innerHTML=`<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>`+g;
+})();
+/* ---------- 大屏环形图 ---------- */
+(function(){
+  const svg=document.getElementById('svg-donut');if(!svg)return;
+  const items=[['高级教师',22,'#38bdf8'],['一级教师',41,'#818cf8'],['二级教师',28,'#34d399'],['其他',9,'#fbbf24']];
+  const cx=150,cy=120,R=75,r=45;let a0=-Math.PI/2,g='';
+  items.forEach(([n,p,c])=>{const a1=a0+p/100*2*Math.PI;
+    const lx=cx+ (R+8)*Math.cos(a0+ (a1-a0)/2), ly2=cy+(R+8)*Math.sin(a0+(a1-a0)/2);
+    g+=`<path d="M${cx+R*Math.cos(a0)},${cy+R*Math.sin(a0)} A${R},${R} 0 ${a1-a0>Math.PI?1:0},1 ${cx+R*Math.cos(a1)},${cy+R*Math.sin(a1)} L${cx+r*Math.cos(a1)},${cy+r*Math.sin(a1)} A${r},${r} 0 ${a1-a0>Math.PI?1:0},0 ${cx+r*Math.cos(a0)},${cy+r*Math.sin(a0)} Z" fill="${c}" opacity="0.9"/>`;
+    g+=`<text x="${lx}" y="${ly2}" font-size="10" fill="#9db8dd" text-anchor="middle">${n} ${p}%</text>`;
+    a0=a1;});
+  g+=`<text x="${cx}" y="${cy-2}" font-size="18" fill="#ffd166" text-anchor="middle" font-weight="700">4.2万</text><text x="${cx}" y="${cy+16}" font-size="10" fill="#5b7fb8" text-anchor="middle">专任教师</text>`;
+  svg.innerHTML=g;
+})();
+</script>
+</body>
+</html>
